@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematron="http://download.ros.org/schema/package_format3.xsd"?>
+<package format="3">
+  <name>agribot_description</name>
+  <version>0.1.0</version>
+  <description>AgriBot mobile base URDF/xacro (diff-drive + 2D lidar) for the SLAM/Nav2 field robot</description>
+  <maintainer email="you@example.com">your_name</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

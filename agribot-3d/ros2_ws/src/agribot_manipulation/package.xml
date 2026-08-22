@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematron="http://download.ros.org/schema/package_format3.xsd"?>
+<package format="3">
+  <name>agribot_manipulation</name>
+  <version>0.1.0</version>
+  <description>MoveIt 2 planning scene and autonomous harvest state machine for AgriBot</description>
+  <maintainer email="you@example.com">your_name</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>shape_msgs</depend>
+  <depend>moveit_msgs</depend>
+  <depend>vision_msgs</depend>
+  <depend>tf2_msgs</depend>
+  <depend>pymoveit2</depend>
+  <depend>ros_gz_interfaces</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

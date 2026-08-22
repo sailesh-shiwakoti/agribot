@@ -1,0 +1,38 @@
+[project]
+name = "agribot-mujoco"
+version = "0.1.0"
+description = "AgriBot learning track — MuJoCo RL + YOLO perception (native macOS/MPS)"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+
+# Pinned to Python 3.11: the ML wheels (torch/MPS, mujoco, stable-baselines3)
+# all ship arm64 wheels for 3.11, and the host 3.14 is too new for them.
+dependencies = [
+    "mujoco>=3.1",            # native Apple-Silicon physics + renderer
+    "gymnasium>=0.29",        # RL environment API
+    "stable-baselines3>=2.3", # SAC / PPO implementations
+    "torch>=2.3",             # policy nets + YOLO; uses Metal (MPS) on Mac
+    "ultralytics>=8.2",       # YOLOv8 detection training
+    "onnx>=1.16",             # export trained detector for ROS deployment
+    "onnxruntime>=1.18",      # sanity-check the exported model on the Mac
+    "opencv-python>=4.9",
+    "numpy<2",                # keep in lockstep with the ROS side / mujoco
+    "tensorboard>=2.16",      # training curves
+    "imageio[ffmpeg]>=2.34",  # rollout videos + demo GIFs
+    "matplotlib>=3.8",        # analysis notebook plots
+    "tqdm>=4.66",
+    "rich>=15.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.0",
+    "ipykernel>=6.29",
+]
+
+[tool.uv]
+# Keep the resolver from trying CUDA torch builds; the macOS default wheel is MPS-capable.
+package = false
+
+[tool.setuptools]
+py-modules = []

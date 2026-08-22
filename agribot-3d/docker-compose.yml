@@ -1,0 +1,30 @@
+services:
+  agribot:
+    build:
+      context: .
+    # Build/run natively on the host arch. On Apple Silicon that's arm64 — no
+    # QEMU emulation, which would make Gazebo unusably slow. (We intentionally
+    # do NOT set a build `platforms:` list, since that switches compose to
+    # buildx multi-arch mode and won't load the image into the local store.)
+    image: agribot-3d:humble
+    platform: linux/arm64
+    container_name: agribot-3d
+    environment:
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - QT_QPA_PLATFORM=offscreen
+      # ROS 2 middleware: keep DDS traffic on localhost inside the container.
+      - ROS_LOCALHOST_ONLY=1
+      - ROS_DOMAIN_ID=0
+    ports:
+      # Foxglove Studio (on the Mac) connects to ws://localhost:8765 for viz.
+      - "8765:8765"
+    volumes:
+      # Bind-mount the workspace so edits on the Mac are live in the container.
+      - ./ros2_ws:/ros2_ws
+      # Optional X11 socket mount — only used by the RViz/gzclient fallback
+      # launch. Harmless when XQuartz isn't running.
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    # Gazebo + MoveIt want a decent chunk of shared memory / no ptrace limits.
+    shm_size: "2gb"
+    stdin_open: true
+    tty: true

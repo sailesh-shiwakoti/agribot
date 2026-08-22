@@ -1,0 +1,5 @@
+# Generated synthetic data — regenerable from perception/generate_dataset.py.
+# Keep the generator scripts, not the images.
+*
+!.gitignore
+!README.md

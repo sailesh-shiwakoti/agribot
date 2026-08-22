@@ -1,0 +1,35 @@
+# ros_gz_bridge config — bridges the Gazebo Sim camera + model poses to ROS 2.
+# Used by parameter_bridge in perception.launch.py.
+# (Fortress uses the "ignition.msgs.*" type names.)
+
+- ros_topic_name: "/camera/image"
+  gz_topic_name: "/camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "ignition.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/depth_image"
+  gz_topic_name: "/camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "ignition.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/camera_info"
+  gz_topic_name: "/camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "ignition.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/points"
+  gz_topic_name: "/camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "ignition.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+# Model poses -> /model_poses (TF), so the harvester can resolve which fruit
+# entity to remove when it "picks".
+- ros_topic_name: "/model_poses"
+  gz_topic_name: "/world/orchard/pose/info"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "ignition.msgs.Pose_V"
+  direction: GZ_TO_ROS

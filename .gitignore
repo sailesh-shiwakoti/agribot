@@ -1,0 +1,33 @@
+# Python / envs
+__pycache__/
+*.pyc
+.venv/
+agribot_mujoco/.venv/
+
+# uv
+uv.lock
+
+# Training artifacts (regenerable; keep configs + scripts)
+agribot_mujoco/training/runs/
+agribot_mujoco/perception/runs/
+*.zip
+*.pt
+!**/models/*.onnx
+agribot_mujoco/scripts/smoke_render.png
+
+# ROS build
+agribot-3d/ros2_ws/build/
+agribot-3d/ros2_ws/install/
+agribot-3d/ros2_ws/log/
+
+# OS
+.DS_Store
+
+# Temp render checks
+agribot_mujoco/orchard/_*.png
+
+# Keep the showcase videos tracked (portfolio artifacts); ignore other mp4s
+media/*.mp4
+!media/orchard_harvest.mp4
+!media/field_harvest.mp4
+!media/reach_sac.mp4

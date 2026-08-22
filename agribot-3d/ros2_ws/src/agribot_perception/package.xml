@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematron="http://download.ros.org/schema/package_format3.xsd"?>
+<package format="3">
+  <name>agribot_perception</name>
+  <version>0.1.0</version>
+  <description>Red-apple detection (HSV / YOLO-ONNX) and 3D localization for AgriBot</description>
+  <maintainer email="you@example.com">your_name</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>vision_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>message_filters</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

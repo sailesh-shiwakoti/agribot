@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!--
+  AgriBot mobile base — a differential-drive platform with a 2D lidar, the
+  navigation robot for the field (SLAM + Nav2). A `mount_link` on top is where
+  the UR5e attaches (see agribot_field.urdf.xacro).
+
+  Gazebo Sim (Fortress) systems used:
+    DiffDrive           - /cmd_vel in -> wheel motion + /odom + odom->base_footprint TF
+    JointStatePublisher - /joint_states
+    gpu_lidar sensor    - /scan (bridged to ROS by ros_gz_bridge)
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="agribot_base">
+
+  <xacro:property name="base_len" value="0.55"/>
+  <xacro:property name="base_wid" value="0.55"/>
+  <xacro:property name="base_hgt" value="0.20"/>
+  <xacro:property name="wheel_r"  value="0.10"/>
+  <xacro:property name="wheel_w"  value="0.05"/>
+  <xacro:property name="wheel_sep" value="0.50"/>
+
+  <material name="chassis"><color rgba="0.15 0.15 0.18 1"/></material>
+  <material name="wheel"><color rgba="0.05 0.05 0.05 1"/></material>
+  <material name="sensor"><color rgba="0.1 0.1 0.1 1"/></material>
+
+  <!-- footprint (nav frame) -->
+  <link name="base_footprint"/>
+
+  <link name="base_link">
+    <visual>
+      <geometry><box size="${base_len} ${base_wid} ${base_hgt}"/></geometry>
+      <material name="chassis"/>
+    </visual>
+    <collision>
+      <geometry><box size="${base_len} ${base_wid} ${base_hgt}"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="30.0"/>
+      <inertia ixx="1.0" iyy="1.0" izz="1.5" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 ${wheel_r + base_hgt/2}"/>
+  </joint>
+
+  <!-- drive wheels -->
+  <xacro:macro name="wheel" params="name y">
+    <link name="${name}_wheel">
+      <visual>
+        <origin rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_r}" length="${wheel_w}"/></geometry>
+        <material name="wheel"/>
+      </visual>
+      <collision>
+        <origin rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_r}" length="${wheel_w}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="1.0"/>
+        <inertia ixx="0.005" iyy="0.005" izz="0.008" ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+    </link>
+    <joint name="${name}_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${name}_wheel"/>
+      <origin xyz="0 ${y} ${-base_hgt/2}"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+  <xacro:wheel name="left"  y="${ wheel_sep/2}"/>
+  <xacro:wheel name="right" y="${-wheel_sep/2}"/>
+
+  <!-- passive caster spheres (front/back) -->
+  <xacro:macro name="caster" params="name x">
+    <link name="${name}_caster">
+      <visual><geometry><sphere radius="0.05"/></geometry><material name="wheel"/></visual>
+      <collision><geometry><sphere radius="0.05"/></geometry></collision>
+      <inertial><mass value="0.2"/>
+        <inertia ixx="0.0002" iyy="0.0002" izz="0.0002" ixy="0" ixz="0" iyz="0"/></inertial>
+    </link>
+    <joint name="${name}_caster_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="${name}_caster"/>
+      <origin xyz="${x} 0 ${-base_hgt/2 - wheel_r + 0.05}"/>
+    </joint>
+  </xacro:macro>
+  <xacro:caster name="front" x="${ base_len/2 - 0.08}"/>
+  <xacro:caster name="rear"  x="${-base_len/2 + 0.08}"/>
+
+  <!-- 2D lidar on a small mast -->
+  <link name="lidar_link">
+    <visual><geometry><cylinder radius="0.04" length="0.05"/></geometry><material name="sensor"/></visual>
+    <collision><geometry><cylinder radius="0.04" length="0.05"/></geometry></collision>
+    <inertial><mass value="0.1"/>
+      <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/></inertial>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="${base_len/2 - 0.10} 0 ${base_hgt/2 + 0.05}"/>
+  </joint>
+
+  <!-- arm mounting plate -->
+  <link name="mount_link"/>
+  <joint name="mount_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="mount_link"/>
+    <origin xyz="-0.05 0 ${base_hgt/2}"/>
+  </joint>
+
+  <!-- ============================ Gazebo ============================ -->
+  <gazebo>
+    <plugin filename="ignition-gazebo-diff-drive-system"
+            name="ignition::gazebo::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>${wheel_sep}</wheel_separation>
+      <wheel_radius>${wheel_r}</wheel_radius>
+      <topic>cmd_vel</topic>
+      <odom_topic>odom</odom_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <odom_publish_frequency>30</odom_publish_frequency>
+      <max_linear_acceleration>1.5</max_linear_acceleration>
+    </plugin>
+    <plugin filename="ignition-gazebo-joint-state-publisher-system"
+            name="ignition::gazebo::systems::JointStatePublisher">
+      <topic>joint_states</topic>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="lidar_link">
+    <sensor name="lidar" type="gpu_lidar">
+      <topic>scan</topic>
+      <update_rate>10</update_rate>
+      <always_on>1</always_on>
+      <ignition_frame_id>lidar_link</ignition_frame_id>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>8.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="base_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <gazebo reference="left_wheel"><material>Gazebo/Black</material></gazebo>
+  <gazebo reference="right_wheel"><material>Gazebo/Black</material></gazebo>
+
+</robot>
